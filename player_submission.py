@@ -31,7 +31,11 @@ class OpenMoveEvalFn:
             """
 
         # TODO: finish this function!
-        raise NotImplementedError
+        legal_moves = game.get_legal_moves()
+        opponent_moves = game.get_opponent_moves()
+        score = len(legal_moves) - len(opponent_moves)
+        #print(type(score))
+        return float(score)
 
 
 class CustomEvalFn:
