@@ -100,8 +100,9 @@ class CustomPlayer:
 				tuple: best_move
 			"""
 
-		print("AI making a move with depth {}".format(self.search_depth))
-		best_move, utility = self.minimax(game, time_left, depth=self.search_depth)
+		print("{} making a move with depth {}".format(game.get_active_players_queen(), self.search_depth))
+		# best_move, utility = self.minimax(game, time_left, depth=self.search_depth)
+		best_move, utility = self.alphabeta(game, time_left, depth=self.search_depth)
 		return best_move
 
 	def utility(self, game, maximizing_player):
@@ -121,6 +122,7 @@ class CustomPlayer:
 			(tuple, int): best_move, val
 		"""
 		# print("Depth count = {}".format(depth))
+		# BASE CASE: Lowest desired level reached
 		if depth == 0:
 			best_val = self.utility(game, maximizing_player)
 			# print("Final depth reached with board state below and value: {}".format(best_val))
@@ -137,15 +139,20 @@ class CustomPlayer:
 			# Forecast the game state with a move
 			forecasted_game, is_over, winner = game.forecast_move(legal_moves[i])
 
-			# Forecasted game is over, so no need to continue down the branch or continue to other children
-			if is_over and not maximizing_player:
-				best_val = float("-inf")
+			# BASE CASE: Forecasted game ends, so this child has no more children. Don't even have to look at anymore
+			# children of the current node, because:
+			# 1) If the AI is forecasted to win while the opponent plays "optimally", then we will always go down this
+			# 	 path
+			# 2) If the opponent is forecasted to win while the AI plays "optimally", then we will always avoid going
+			# 	 down this path
+			if is_over and maximizing_player:
+				best_val = float("inf")
 				best_move = legal_moves[i]
 				# print("{} wins by moving to {} (val: {})".format(winner, best_move, best_val))
 				# print game.print_board()
 				break
-			elif is_over and maximizing_player:
-				best_val = float("inf")
+			elif is_over and not maximizing_player:
+				best_val = float("-inf")
 				best_move = legal_moves[i]
 				# print("{} wins by moving to {} (val: {})".format(winner, best_move, best_val))
 				# print game.print_board()
@@ -154,7 +161,7 @@ class CustomPlayer:
 			# Forecasted game is not over, so continue to search this branch
 			forecasted_best_move, forecasted_best_val = self.minimax(forecasted_game, time_left, depth-1, not maximizing_player)
 
-			# The player making the move now (self) tries to maximize the evaluated value, while a forecasted opponent
+			# The active player (self) tries to maximize the evaluated value, while the forecasted opponent
 			# move tries to minimize the evaluated value
 			if maximizing_player:
 				if forecasted_best_val > best_val:
@@ -175,13 +182,86 @@ class CustomPlayer:
 			game (Board): A board and game state.
 			time_left (function): Used to determine time left before timeout
 			depth: Used to track how deep you are in the search tree
-			alpha (float): Alpha value for pruning
-			beta (float): Beta value for pruning
+			alpha (float): Alpha value for pruning (upper threshold value from path to root)
+			beta (float): Beta value for pruning (lower threshold value from path to root)
 			maximizing_player (bool): True if maximizing player is active.
 
 		Returns:
 			(tuple, int): best_move, val
 		"""
-		# TODO: finish this function!
-		raise NotImplementedError
-		return best_move, val
+		# BASE CASE: Lowest desired level reached
+		print("Depth count = {}, alpha(upper threshold):{}, beta(lower threshold):{}".format(depth, alpha, beta))
+		if depth == 0:
+			best_val = self.utility(game, maximizing_player)
+			print("Final depth reached with board state below and value: {}".format(best_val))
+			print game.print_board()
+			return None, best_val
+
+		best_move = None
+		if maximizing_player:	best_val = float("-inf")	# For a maximizing player, must be more than -inf
+		else:					best_val = float("inf")		# For a minimizing player, must be less than inf
+		legal_moves = game.get_legal_moves()				# Legal moves for the active player
+		print("Board state with {}'s move. Maximizing node = {}".format(game.get_active_players_queen(), maximizing_player))
+		print game.print_board(legal_moves)
+		for i in range(0,len(legal_moves)):
+			# Forecast the game state with a move
+			forecasted_game, is_over, winner = game.forecast_move(legal_moves[i])
+
+			# BASE CASE: Forecasted game ends, so this child has no more children. Don't even have to look at anymore
+			# children of the current node, because:
+			# 1) If the AI is forecasted to win while the opponent plays "optimally", then we will always go down this
+			# 	 path
+			# 2) If the opponent is forecasted to win while the AI plays "optimally", then we will always avoid going
+			# 	 down this path
+			if is_over and maximizing_player:
+				best_val = float("inf")
+				best_move = legal_moves[i]
+				print("{} wins by moving to {} (val: {})".format(winner, best_move, best_val))
+				print game.print_board()
+				break
+			elif is_over and not maximizing_player:
+				best_val = float("-inf")
+				best_move = legal_moves[i]
+				print("{} wins by moving to {} (val: {})".format(winner, best_move, best_val))
+				print game.print_board()
+				break
+
+			# Forecasted game is not over, so continue to search this branch
+			forecasted_best_move, forecasted_best_val = self.alphabeta(forecasted_game, time_left, depth-1,
+																		 alpha, beta, not maximizing_player)
+
+			# The active player (self) tries to maximize the evaluated value, while the forecasted opponent
+			# move tries to minimize the evaluated value
+			if maximizing_player:
+				# If I get a return value from a child that is >= beta, no need to look at further
+				# children since I will never be returning a value that can replace beta
+				if forecasted_best_val >= beta:
+					print("Pruning the other children. Best move in this node for {} is {} with value {}".format(
+						game.get_active_players_queen(), legal_moves[i], forecasted_best_val))
+					return legal_moves[i], forecasted_best_val
+				if forecasted_best_val > best_val:
+					print("(Max)Returned value > current best value of {}. Setting best_val for this node".format(
+						best_val))
+					best_val = forecasted_best_val
+					best_move = legal_moves[i]
+				if forecasted_best_val > alpha:
+					print("Also better than alpha of {}. Setting alpha".format(alpha))
+					alpha = forecasted_best_val
+			else:
+				# Minimizing node: If I get a return value from a child that is <= alpha, no need to look at further
+				# children since I will never be returning a value that can replace alpha
+				if forecasted_best_val <= alpha:
+					print("Pruning the other children. Best move in this node for {} is {} with value {}".format(
+						game.get_active_players_queen(), legal_moves[i], forecasted_best_val))
+					return legal_moves[i], forecasted_best_val
+				if forecasted_best_val < best_val:
+					print("(Min)Returned value < current best value of {}. Setting best_val for this node".format(
+						best_val))
+					best_val = forecasted_best_val
+					best_move = legal_moves[i]
+				if forecasted_best_val < beta:
+					print("Also less than beta of {}. Setting beta".format(beta))
+					beta = forecasted_best_val
+
+		print("Best move in this node for {} is {} with value {}".format(game.get_active_players_queen(), best_move, best_val))
+		return best_move, best_val
