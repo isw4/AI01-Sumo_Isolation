@@ -62,7 +62,7 @@ try:
     # b.move_count = 2
     ### END
 
-    b = Board(CustomPlayer(4), HumanPlayer(), 5, 5)
+    b = Board(CustomPlayer(), HumanPlayer(), 5, 5)
     b.__board_state__ = [
         [" ", " ", " ", " ", " "],
         [" ", " ", " ", " ", " "],
@@ -77,7 +77,7 @@ try:
     output_b = b.copy()
     legal_moves = b.get_legal_moves()
     winner, move_history, termination = b.play_isolation(
-        time_limit=100000, print_moves=True)
+        time_limit=1000, print_moves=True)
     print winner
     print move_history
     print termination
