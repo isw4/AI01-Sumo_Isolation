@@ -6,89 +6,96 @@ from test_players import RandomPlayer, HumanPlayer
 import platform
 
 if platform.system() != 'Windows':
-    import resource
+	import resource
 from time import time, sleep
 
 try:
-    """Example test to make sure
-    your minimax works, using the
-    OpenMoveEvalFunction evaluation function.
+	"""Example test to make sure
+	your minimax works, using the
+	OpenMoveEvalFunction evaluation function.
 	This can be used for debugging your code
 	with different model Board states. 
 	Especially important to check alphabeta 
 	pruning"""
-    # create dummy 5x5 board
-    #b = Board(RandomPlayer(), HumanPlayer(), 5, 5)
+	# create dummy 5x5 board
+	#b = Board(RandomPlayer(), HumanPlayer(), 5, 5)
 
 
-    ### TODO: There is no best move available for the CustomPlayer. Maybe try to implement a next best move
-    # Below is the setup that causes the AI to be unable to select a function.
-    # Using the normal eval function and minimax algorithm
-    # b = Board(CustomPlayer(6), HumanPlayer(), 3, 3)
-    # b.__board_state__ = [
-    #     ["Q1", " ", " "],
-    #     [" ", " ", "Q2"],
-    #     [" ", " ", " "]
-    # ]
-    # b.__last_queen_move__[b.__queen_1__] = (0, 0, False)
-    # b.__last_queen_move__[b.__queen_2__] = (1, 2, False)
-    # b.move_count = 2
-    ### END TODO
+	### TODO: There is no best move available for the CustomPlayer. Maybe try to implement a next best move
+	# Below is the setup that causes the AI to be unable to select a function.
+	# Using the normal eval function and minimax algorithm
+	# b = Board(CustomPlayer(6), HumanPlayer(), 3, 3)
+	# b.__board_state__ = [
+	#     ["Q1", " ", " "],
+	#     [" ", " ", "Q2"],
+	#     [" ", " ", " "]
+	# ]
+	# b.__last_queen_move__[b.__queen_1__] = (0, 0, False)
+	# b.__last_queen_move__[b.__queen_2__] = (1, 2, False)
+	# b.move_count = 2
+	### END TODO
 
 
-    ### This setup is a sure-win for Q1 (CustomPlayer)
-    # b = Board(CustomPlayer(1), HumanPlayer(), 3, 3)
-    # b.__board_state__ = [
-    #     [" ", " ", " "],
-    #     [" ", "Q1", "Q2"],
-    #     [" ", " ", " "]
-    # ]
-    # b.__last_queen_move__[b.__queen_1__] = (1, 1, False)
-    # b.__last_queen_move__[b.__queen_2__] = (1, 2, False)
-    # b.move_count = 2
-    ### END
+	### This setup is a sure-win for Q1 (CustomPlayer)
+	# b = Board(CustomPlayer(1), HumanPlayer(), 3, 3)
+	# b.__board_state__ = [
+	#     [" ", " ", " "],
+	#     [" ", "Q1", "Q2"],
+	#     [" ", " ", " "]
+	# ]
+	# b.__last_queen_move__[b.__queen_1__] = (1, 1, False)
+	# b.__last_queen_move__[b.__queen_2__] = (1, 2, False)
+	# b.move_count = 2
+	### END
 
-    # For alpha beta pruning test
-    # b = Board(CustomPlayer(4), HumanPlayer(), 5, 5)
-    # b.__board_state__ = [
-    #     ["X", "X", "X", "X", "X"],
-    #     ["X", " ", " ", "X", "X"],
-    #     ["X", " ", " ", "Q1", "X"],
-    #     ["X", "X", " ", "Q2", "X"],
-    #     ["X", "X", "X", "X", "X"]
-    # ]
-    # b.__last_queen_move__[b.__queen_1__] = (2, 3, False)
-    # b.__last_queen_move__[b.__queen_2__] = (3, 3, False)
-    # b.move_count = 2
-    ### END
+	# For alpha beta pruning test
+	# b = Board(CustomPlayer(4), HumanPlayer(), 5, 5)
+	# b.__board_state__ = [
+	#     ["X", "X", "X", "X", "X"],
+	#     ["X", " ", " ", "X", "X"],
+	#     ["X", " ", " ", "Q1", "X"],
+	#     ["X", "X", " ", "Q2", "X"],
+	#     ["X", "X", "X", "X", "X"]
+	# ]
+	# b.__last_queen_move__[b.__queen_1__] = (2, 3, False)
+	# b.__last_queen_move__[b.__queen_2__] = (3, 3, False)
+	# b.move_count = 2
+	### END
 
-    b = Board(CustomPlayer(), HumanPlayer(), 5, 5)
-    b.__board_state__ = [
-        [" ", " ", " ", " ", " "],
-        [" ", " ", " ", " ", " "],
-        [" ", " ", " ", "Q1", " "],
-        [" ", " ", " ", "Q2", " "],
-        [" ", " ", " ", " ", " "]
-    ]
-    b.__last_queen_move__[b.__queen_1__] = (2, 3, False)
-    b.__last_queen_move__[b.__queen_2__] = (3, 3, False)
-    b.move_count = 2
+	b = Board(CustomPlayer(), HumanPlayer(), 5, 5)
+	b.__board_state__ = [
+		[" ", " ", " ", " ", " "],
+		[" ", " ", " ", " ", " "],
+		[" ", " ", " ", "Q1", " "],
+		[" ", " ", " ", "Q2", " "],
+		[" ", " ", " ", " ", " "]
+	]
+	b.__last_queen_move__[b.__queen_1__] = (2, 3, False)
+	b.__last_queen_move__[b.__queen_2__] = (3, 3, False)
+	b.move_count = 2
 
-    output_b = b.copy()
-    legal_moves = b.get_legal_moves()
-    winner, move_history, termination = b.play_isolation(
-        time_limit=1000, print_moves=True)
-    print winner
-    print move_history
-    print termination
-    print 'Minimax Test: Runs Successfully'
-    # Uncomment to see example game
-    # print game_as_text(winner, move_history, termination, output_b)
+	stored_states = {}
+	state1 = b.get_state()
+	state2 = b.get_state()
+	stored_states[state1] = 3
+	print [b.get_state()]
+	print state1 == state2
+	# output_b = b.copy()
+	# legal_moves = b.get_legal_moves()
+	# winner, move_history, termination = b.play_isolation(
+	#     time_limit=1000, print_moves=True)
+	# print winner
+	# print move_history
+	# print termination
+	# print 'Minimax Test: Runs Successfully'
+	# Uncomment to see example game
+	# print game_as_text(winner, move_history, termination, output_b)
+
 except NotImplementedError:
-    print 'Minimax Test: Not Implemented'
+	print 'Minimax Test: Not Implemented'
 except:
-    print 'Minimax Test: ERROR OCCURRED'
-    print traceback.format_exc()
+	print 'Minimax Test: ERROR OCCURRED'
+	print traceback.format_exc()
 
 # leaf_array = [19, 15, 17, -13, 14, 6, -9, -2, -17, 19, -4, 5, 17, 7, -3, -17]
 # def alpha_beta(depth, leaf_index=0, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
