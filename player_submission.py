@@ -65,7 +65,7 @@ class CustomPlayer:
 	You must finish and test this player to make sure it properly
 	uses minimax and alpha-beta to return a good move."""
 
-	def __init__(self, search_depth=3, eval_fn=OpenMoveEvalFn()):
+	def __init__(self, search_depth=2, eval_fn=OpenMoveEvalFn()):
 		"""Initializes your player.
 
 		if you find yourself with a superior eval function, update the default
@@ -96,17 +96,13 @@ class CustomPlayer:
 				tuple: best_move
 			"""
 		# Find move by iterative deepening
-		# Initialize best move by evaluating at level 1
-		best_move, utility = self.alphabeta(game, time_left, depth=1)
+		best_move, utility = self.alphabeta(game, time_left, depth=1) # Initialize best move by evaluating at level 1
 		k = 2
 		while True:
-			# print("{} searching for a move with depth {}".format(game.get_active_players_queen(), k))
 			attempted_best_move, utility = self.alphabeta(game, time_left, depth=k)
 			if attempted_best_move == None:
-				# print("Time ran out searching at depth {}".format(k))
 				break
 			best_move = attempted_best_move
-			# print("Best move at depth {}: {}".format(k, best_move))
 			k += 1
 		# print(k)
 		return best_move
