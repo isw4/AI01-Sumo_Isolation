@@ -65,14 +65,16 @@ class CustomPlayer:
 	You must finish and test this player to make sure it properly
 	uses minimax and alpha-beta to return a good move."""
 
-	def __init__(self, search_depth=2, eval_fn=OpenMoveEvalFn()):
+	def __init__(self, search_depth=0, eval_fn=OpenMoveEvalFn()):
 		"""Initializes your player.
 
 		if you find yourself with a superior eval function, update the default
 		value of `eval_fn` to `CustomEvalFn()`
 
 		Args:
-			search_depth (int): The depth to which your agent will search
+			search_depth (int): The depth to which your agent will search. If search depth <= 0, it will search by
+								 iterative deepening based on the time_left fn passed into the move() fn. Otherwise,
+								 it will search to the specified depth
 			eval_fn (function): Utility function used by your agent
 		"""
 		self.eval_fn = eval_fn
@@ -95,16 +97,21 @@ class CustomPlayer:
 			Returns:
 				tuple: best_move
 			"""
-		# Find move by iterative deepening
-		best_move, utility = self.alphabeta(game, time_left, depth=1) # Initialize best move by evaluating at level 1
-		k = 2
-		while True:
-			attempted_best_move, utility = self.alphabeta(game, time_left, depth=k)
-			if attempted_best_move == None:
-				break
-			best_move = attempted_best_move
-			k += 1
-		# print(k)
+		search_fn = self.alphabeta
+		if self.search_depth > 0:
+			# Searching to a specified depth
+			best_move, utility = search_fn(game, time_left, depth=self.search_depth)
+		else:
+			# Searching by iterative deepening
+			best_move, utility = search_fn(game, time_left, depth=1) # Initialize best move by evaluating at level 1
+			k = 2
+			while True:
+				attempted_best_move, utility = search_fn(game, time_left, depth=k)
+				if attempted_best_move is None:
+					break
+				best_move = attempted_best_move
+				k += 1
+			# print(k)
 		return best_move
 
 	def utility(self, game, maximizing_player):
@@ -164,7 +171,7 @@ class CustomPlayer:
 			forecasted_best_move, forecasted_best_val = self.minimax(forecasted_game, time_left, depth-1, not maximizing_player)
 
 			# If not enough time left, just return
-			if time_left() == 5:
+			if time_left() <= 15:
 				return None, float("-inf")
 
 			# The active player (self) tries to maximize the evaluated value, while the forecasted opponent
@@ -239,7 +246,8 @@ class CustomPlayer:
 			#                                                                           forecasted_best_val))
 
 			# If not enough time left, just return
-			if time_left() == 5:
+			#print time_left()
+			if time_left() <= 15:
 				return None, float("-inf")
 
 			# The active player (self) tries to maximize the evaluated value, while the forecasted opponent
