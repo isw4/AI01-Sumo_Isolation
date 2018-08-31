@@ -357,6 +357,7 @@ def game_as_text(winner, move_history,  termination="", board=Board(1, 2)):
                 if board.move_is_in_board(new_enemy_x, new_enemy_y):
                     board.__apply_move_write__((new_enemy_x, new_enemy_y, False))
                 ans.write("\n\n" + board.__queen_2__ + " pushed to (" + str(new_enemy_x) + "," + str(new_enemy_y) + ")\r\n")
+                board.__active_players_queen__, board.__inactive_players_queen__ = board.__inactive_players_queen__, board.__active_players_queen__
 
 
         if len(move) > 1 and move[1] != Board.NOT_MOVED and move[0] is not None:
@@ -373,6 +374,7 @@ def game_as_text(winner, move_history,  termination="", board=Board(1, 2)):
                 if board.move_is_in_board(new_enemy_x, new_enemy_y):
                     board.__apply_move_write__((new_enemy_x, new_enemy_y, False))
                 ans.write("\n\n" + board.__queen_1__ + " pushed to (" + str(new_enemy_x) + "," + str(new_enemy_y) + ")\r\n")
+                board.__active_players_queen__, board.__inactive_players_queen__ = board.__inactive_players_queen__, board.__active_players_queen__
 
         last_move = move
 
