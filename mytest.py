@@ -49,27 +49,30 @@ try:
     ### END
 
     # For alpha beta pruning test
-    b = Board(CustomPlayer(4), HumanPlayer(), 3, 3)
-    b.__board_state__ = [
-        ["Q1", " ", " "],
-        [" ", " ", "Q2"],
-        [" ", " ", " "]
-    ]
-    b.__last_queen_move__[b.__queen_1__] = (0, 0, False)
-    b.__last_queen_move__[b.__queen_2__] = (1, 2, False)
-    b.move_count = 2
-
     # b = Board(CustomPlayer(4), HumanPlayer(), 5, 5)
     # b.__board_state__ = [
-    #     [" ", " ", " ", " ", " "],
-    #     [" ", " ", " ", " ", " "],
-    #     [" ", " ", " ", "Q1", " "],
-    #     [" ", " ", " ", "Q2", " "],
-    #     [" ", " ", " ", " ", " "]
+    #     ["X", "X", "X", "X", "X"],
+    #     ["X", " ", " ", "X", "X"],
+    #     ["X", " ", " ", "Q1", "X"],
+    #     ["X", "X", " ", "Q2", "X"],
+    #     ["X", "X", "X", "X", "X"]
     # ]
     # b.__last_queen_move__[b.__queen_1__] = (2, 3, False)
     # b.__last_queen_move__[b.__queen_2__] = (3, 3, False)
     # b.move_count = 2
+    ### END
+
+    b = Board(CustomPlayer(4), HumanPlayer(), 5, 5)
+    b.__board_state__ = [
+        [" ", " ", " ", " ", " "],
+        [" ", " ", " ", " ", " "],
+        [" ", " ", " ", "Q1", " "],
+        [" ", " ", " ", "Q2", " "],
+        [" ", " ", " ", " ", " "]
+    ]
+    b.__last_queen_move__[b.__queen_1__] = (2, 3, False)
+    b.__last_queen_move__[b.__queen_2__] = (3, 3, False)
+    b.move_count = 2
 
     output_b = b.copy()
     legal_moves = b.get_legal_moves()
