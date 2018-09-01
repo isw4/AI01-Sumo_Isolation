@@ -68,5 +68,26 @@ def test_symmetric_search():
 				assert False
 			blank_board[i][j] = " "
 
+def compare_minimax_alphabeta():
+	c = CustomPlayer(4)
+	c.search_fn = c.minimax
+	h = HumanPlayer()
+	b = Board(c, h, 5, 5)
+	b.__board_state__ = [
+        [" ", " " , " ", " ", " "],
+        [" ", " ",  " ", " ", " "],
+        [" ", " ",  " ","Q1", " "],
+        [" ", " ",  " ","Q2", " "],
+        [" ", " " , " ", " ", " "]
+	]
+	b.__last_queen_move__[b.__queen_1__] = (2, 3, False)
+	b.__last_queen_move__[b.__queen_2__] = (3, 3, False)
+	b.move_count = 2
+	winner, move_history, termination = b.play_isolation(time_limit=100000, print_moves=True)
 
-test_symmetric_search()
+# Best move: (3, 3, True), value: -0.190476190476
+# Time taken to determine best move: 0.929999828339
+# Best move: (3, 3, True), value: -0.190476190476
+# Time taken to determine best move: 0.223999977112
+#test_symmetric_search()
+compare_minimax_alphabeta()

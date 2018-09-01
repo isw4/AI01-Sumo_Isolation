@@ -73,7 +73,10 @@ class CustomEvalFn:
 			return float("-inf")
 		if not opponent_moves:
 			return float("inf")
-		return float(2 * len(my_moves) - len(opponent_moves))
+
+		num_my_moves = float(len(my_moves))
+		num_opp_moves = float(len(opponent_moves))
+		return (num_my_moves - 1.5 * num_opp_moves) / (num_my_moves + num_opp_moves)
 
 
 class CustomPlayer:
@@ -94,13 +97,12 @@ class CustomPlayer:
 								 it will search to the specified depth
 			eval_fn (function): Utility function used by your agent
 		"""
+		self.search_fn = self.alphabeta
 		self.eval_fn = eval_fn
 		self.search_depth = search_depth
 		self.time_threshold = 15
 		self.symm_threshold = 3
 		self.boards_seen = BoardsSeen()
-
-		self.count_leaves = 0
 
 	def move(self, game, legal_moves, time_left):
 		"""Called to determine one move by your agent
@@ -120,17 +122,17 @@ class CustomPlayer:
 				tuple: best_move
 			"""
 		start_move = time.time()
-		search_fn = self.alphabeta
 
 		if self.search_depth > 0:
 			# Searching to a specified depth
 			self.boards_seen = BoardsSeen() # Each time the player moves, boards seen will be reset, to force
 											# the boards to be re-evaluated by searching deeper
-			best_move, utility = search_fn(game, time_left, depth=self.search_depth)
+			best_move, utility = self.search_fn(game, time_left, depth=self.search_depth)
+			print("Best move: {}, value: {}".format(best_move, utility))
 		else:
 			# Searching by iterative deepening
 			start_k = time.time()
-			best_move, utility = search_fn(game, time_left, depth=1) # Initialize best move by evaluating at level 1
+			best_move, utility = self.search_fn(game, time_left, depth=1) # Initialize best move by evaluating at level 1
 			#print("Time taken to search at level 1: {}. Time left: {}".format(time.time() - start_k, time_left()))
 			k = 2
 			n = 2
@@ -138,13 +140,13 @@ class CustomPlayer:
 				self.boards_seen = BoardsSeen() # Each time the player moves, boards seen will be reset, to force
 												# the boards to be re-evaluated by searching deeper
 				start_k = time.time()
-				attempted_best_move, utility = search_fn(game, time_left, depth=k)
+				attempted_best_move, utility = self.search_fn(game, time_left, depth=k)
 				if attempted_best_move is None:
 					print("Time spent attempting level {} is {}".format(k, time.time() - start_k))
 					break
 				best_move = attempted_best_move
-				n = k
 				print("Time taken to search at level {}: {}".format(k, time.time() - start_k))
+				print("Best move: {}, value: {}".format(best_move, utility))
 				k += 1
 		print("Time taken to determine best move: {}".format(time.time() - start_move))
 		return best_move
@@ -165,14 +167,13 @@ class CustomPlayer:
 		Returns:
 			(tuple, int): best_move, val
 		"""
-		print("Depth count = {}".format(depth))
+		# print("Depth count = {}".format(depth))
 		# BASE CASE: Lowest desired level reached
 		if depth == 0:
 			best_val = self.utility(game, maximizing_player)
-			self.count_leaves += 1
-			print("Final depth reached with board state below and value: {}".format(best_val))
-			print("Maximizing player={}, {}'s turn to move".format(maximizing_player, game.get_active_players_queen()))
-			print game.print_board()
+			# print("Final depth reached with board state below and value: {}".format(best_val))
+			# print("Maximizing player={}, {}'s turn to move".format(maximizing_player, game.get_active_players_queen()))
+			# print game.print_board()
 			return None, best_val
 
 		best_move = None
@@ -193,12 +194,12 @@ class CustomPlayer:
 			# 	 down this path
 			if is_over :
 				if maximizing_player:
-					print("{} wins by moving to {} (val: inf)".format(winner, legal_moves[i]))
-					print game.print_board()
+					# print("{} wins by moving to {} (val: inf)".format(winner, legal_moves[i]))
+					# print game.print_board()
 					return legal_moves[i], float("inf")
 				else:
-					print("{} wins by moving to {} (val: -inf)".format(winner, legal_moves[i]))
-					print game.print_board()
+					# print("{} wins by moving to {} (val: -inf)".format(winner, legal_moves[i]))
+					# print game.print_board()
 					return legal_moves[i], float("-inf")
 
 			# Forecasted game is not over, so continue to search this branch
@@ -219,7 +220,7 @@ class CustomPlayer:
 					best_val = forecasted_best_val
 					best_move = legal_moves[i]
 
-		print("Best move in this node for {} is {} with value {}".format(game.get_active_players_queen(), best_move, best_val))
+		# print("Best move in this node for {} is {} with value {}".format(game.get_active_players_queen(), best_move, best_val))
 		return best_move, best_val
 
 	def alphabeta(self, game, time_left, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
@@ -277,6 +278,10 @@ class CustomPlayer:
 				forecasted_best_move, forecasted_best_val = self.alphabeta(forecasted_game, time_left, depth-1,
 																		   alpha, beta, not maximizing_player)
 
+			# Add to symmetry table if not yet seen
+			if forecasted_game.move_count <= self.symm_threshold and value_of_sym_board is None:
+				self.boards_seen.add(forecasted_game.get_state(), forecasted_best_val)
+
 			# If not enough time left, just return
 			if time_left() <= 15:
 				return None, None
@@ -308,8 +313,6 @@ class CustomPlayer:
 				if forecasted_best_val < beta:
 					beta = forecasted_best_val
 
-		if game.move_count <= self.symm_threshold:
-			self.boards_seen.add(game.get_state(), best_val)
 		return best_move, best_val
 
 

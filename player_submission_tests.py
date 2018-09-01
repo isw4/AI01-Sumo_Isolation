@@ -9,31 +9,30 @@ if platform.system() != 'Windows':
 from time import time, sleep
 
 def main():
-
-    print ""
-    try:
-        sample_board = Board(RandomPlayer(), RandomPlayer())
-        # setting up the board as though we've been playing
-        sample_board.move_count = 2
-        sample_board.__board_state__ = [
-            ["Q1", " ", " ", " ", " ", " ", " "],
-            [ " ", " ", " ", " ", " ", " ", " "],
-            [ " ", " ", " ", " ", " ", " ", " "],
-            [ " ", " ", " ","Q2", " ", " ", " "],
-            [ " ", " ", " ", " ", " ", " ", " "],
-            [ " ", " ", " ", " ", " ", " ", " "],
-            [ " ", " ", " ", " ", " ", " ", " "]
-        ]
-        sample_board.__last_queen_move__ = {sample_board.__queen_1__: (0, 0, False), \
-                                            sample_board.__queen_2__: (3, 3, False)}
-        test = sample_board.get_legal_moves()
-        h = OpenMoveEvalFn()
-        print 'OpenMoveEvalFn Test: This board has a score of %s.' % (h.score(sample_board))
-    except NotImplementedError:
-        print 'OpenMoveEvalFn Test: Not implemented'
-    except:
-        print 'OpenMoveEvalFn Test: ERROR OCCURRED'
-        print traceback.format_exc()
+    # print ""
+    # try:
+    #     sample_board = Board(RandomPlayer(), RandomPlayer())
+    #     # setting up the board as though we've been playing
+    #     sample_board.move_count = 2
+    #     sample_board.__board_state__ = [
+    #         ["Q1", " ", " ", " ", " ", " ", " "],
+    #         [ " ", " ", " ", " ", " ", " ", " "],
+    #         [ " ", " ", " ", " ", " ", " ", " "],
+    #         [ " ", " ", " ","Q2", " ", " ", " "],
+    #         [ " ", " ", " ", " ", " ", " ", " "],
+    #         [ " ", " ", " ", " ", " ", " ", " "],
+    #         [ " ", " ", " ", " ", " ", " ", " "]
+    #     ]
+    #     sample_board.__last_queen_move__ = {sample_board.__queen_1__: (0, 0, False), \
+    #                                         sample_board.__queen_2__: (3, 3, False)}
+    #     test = sample_board.get_legal_moves()
+    #     h = OpenMoveEvalFn()
+    #     print 'OpenMoveEvalFn Test: This board has a score of %s.' % (h.score(sample_board))
+    # except NotImplementedError:
+    #     print 'OpenMoveEvalFn Test: Not implemented'
+    # except:
+    #     print 'OpenMoveEvalFn Test: ERROR OCCURRED'
+    #     print traceback.format_exc()
 
     # print ""
     # try:
@@ -76,25 +75,32 @@ def main():
 
        
 
-    """Example test you can run
-    to make sure your AI does better
-    than random."""  
-    print ""  
-    try:
-    	r = RandomPlayer()
-    	h = CustomPlayer()
-    	game = Board(r, h, 7, 7)
-    	output_b = game.copy()
-    	winner, move_history, termination = game.play_isolation(time_limit=1000, print_moves=True)
-        print "\n",winner," has won. Reason: ", termination
-    	# Uncomment to see game
-    	# print game_as_text(winner, move_history, termination, output_b)
-    except NotImplementedError:
-	   print 'CustomPlayer Test: Not Implemented'
-    except:
-    	print 'CustomPlayer Test: ERROR OCCURRED'
-    	print traceback.format_exc()
-	    
+    # """Example test you can run
+    # to make sure your AI does better
+    # than random."""
+    # print ""
+    # try:
+    # 	r = RandomPlayer()
+    # 	h = CustomPlayer()
+    # 	game = Board(r, h, 7, 7)
+    # 	output_b = game.copy()
+    # 	winner, move_history, termination = game.play_isolation(time_limit=1000, print_moves=True)
+    #     print "\n",winner," has won. Reason: ", termination
+    # 	# Uncomment to see game
+    # 	# print game_as_text(winner, move_history, termination, output_b)
+    # except NotImplementedError:
+	#    print 'CustomPlayer Test: Not Implemented'
+    # except:
+    # 	print 'CustomPlayer Test: ERROR OCCURRED'
+    # 	print traceback.format_exc()
+
+
+    print ""
+    ai = CustomPlayer()
+    h = HumanPlayer()
+    game = Board(h, ai, 7, 7)
+    winner, move_history, termination = game.play_isolation(time_limit=1000, print_moves=True)
+    print "\n",winner," has won. Reason: ", termination
    
     
 if __name__ == "__main__":
