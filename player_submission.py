@@ -97,12 +97,12 @@ class CustomPlayer:
 								 it will search to the specified depth
 			eval_fn (function): Utility function used by your agent
 		"""
-		self.search_fn = self.alphabeta
-		self.eval_fn = eval_fn
-		self.search_depth = search_depth
-		self.time_threshold = 15
-		self.symm_threshold = 3
-		self.boards_seen = BoardsSeen()
+		self.search_fn = self.alphabeta     # Which search function to use? Minimax or Alpha-Beta?
+		self.eval_fn = eval_fn              # Which evaluation function to use? OpenMoveEvalFn or CustomEvalFn?
+		self.search_depth = search_depth    # How deep to search? If <= 0, uses iterative deepening. If > 0, fixed depth
+		self.time_threshold = 15            # How many milliseconds before timeout to quit iterative deepening
+		self.symm_threshold = 3             # How many moves deep to check for symmetric boards
+		self.boards_seen = BoardsSeen()     # Class to cache symmetric boards seen during each iteration of searching
 
 	def move(self, game, legal_moves, time_left):
 		"""Called to determine one move by your agent
@@ -156,7 +156,9 @@ class CustomPlayer:
 		return self.eval_fn.score(game, maximizing_player)
 
 	def minimax(self, game, time_left, depth, maximizing_player=True):
-		"""Implementation of the minimax algorithm
+		"""
+		Implementation of the minimax algorithm. Can be used with iterative deepening. No pruning with alpha-beta
+		or with checking for symmetric boards.
 
 		Args:
 			game (Board): A board and game state.
@@ -206,7 +208,7 @@ class CustomPlayer:
 			forecasted_best_move, forecasted_best_val = self.minimax(forecasted_game, time_left, depth-1, not maximizing_player)
 
 			# If not enough time left, just return
-			if time_left() <= 15:
+			if time_left() <= self.time_threshold:
 				return None, None
 
 			# The active player (self) tries to maximize the evaluated value, while the forecasted opponent
@@ -224,7 +226,9 @@ class CustomPlayer:
 		return best_move, best_val
 
 	def alphabeta(self, game, time_left, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
-		"""Implementation of the alphabeta algorithm
+		"""
+		Implementation of the alphabeta algorithm. Can be used with iterative deepening. Also implements pruning by
+		checking for symmetric boards
 
 		Args:
 			game (Board): A board and game state.
@@ -283,7 +287,7 @@ class CustomPlayer:
 				self.boards_seen.add(forecasted_game.get_state(), forecasted_best_val)
 
 			# If not enough time left, just return
-			if time_left() <= 15:
+			if time_left() <= self.time_threshold:
 				return None, None
 
 			# The active player (self) tries to maximize the evaluated value, while the forecasted opponent

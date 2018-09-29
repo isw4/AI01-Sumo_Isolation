@@ -1,3 +1,4 @@
+from test_players import HumanPlayer
 from copy import deepcopy
 import time
 import platform
@@ -286,7 +287,7 @@ class Board:
                 move_history[-1].append(curr_move)
 
             # Handle Timeout
-            if time_limit and time_left() <= 0:
+            if not isinstance(self.__active_player__, HumanPlayer) and time_limit and time_left() <= 0:
                 return self.__inactive_players_queen__, move_history, \
                        (self.__active_players_queen__ +" timed out.")
 
